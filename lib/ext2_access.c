@@ -18,7 +18,8 @@
 // Return a pointer to the primary superblock of a filesystem.
 struct ext2_super_block * get_super_block(void * fs) {
     // FIXME: Uses reference implementation.
-    return _ref_get_super_block(fs);
+    //return _ref_get_super_block(fs);
+    return fs + SUPERBLOCK_OFFSET; 
 }
 
 
