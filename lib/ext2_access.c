@@ -18,14 +18,14 @@
 // Return a pointer to the primary superblock of a filesystem.
 struct ext2_super_block * get_super_block(void * fs) {
   // superblock is always located at offset 1024 from the beginning of the file.    
-  // SUPERBLOCK_OFFSET defined
   return fs + SUPERBLOCK_OFFSET; 
 }
 
 
 // Return the block size for a filesystem.
 __u32 get_block_size(void * fs) {
-  // FIXME: Uses reference implementation.
+  // Get the super block, then find the block size
+  // Multiply by 1024 to find the actual size
   return 1024 << get_super_block(fs)->s_log_block_size;
 }
 
@@ -33,7 +33,6 @@ __u32 get_block_size(void * fs) {
 // Return a pointer to a block given its number.
 // get_block(fs, 0) == fs;
 void * get_block(void * fs, __u32 block_num) {
-  // FIXME: Uses reference implementation.
   // offsets by the block size times the block_num. 
   return fs + (block_num * get_block_size(fs));
 }
@@ -43,8 +42,13 @@ void * get_block(void * fs, __u32 block_num) {
 // ext2 filesystems will have several of these, but, for simplicity, we will
 // assume there is only one.
 struct ext2_group_desc * get_block_group(void * fs, __u32 block_group_num) {
-  // FIXME: Uses reference implementation.
-  return _ref_get_block_group(fs, block_group_num);
+  // first we need the block size.
+  __u32 block_size = get_block_size(fs);
+  // we then need the block number of the block group descriptor, which is located in the superblock.
+  // We divide the superblock_offset by the block size to get the index of block group descriptor table. 
+  __u32 block = (SUPERBLOCK_OFFSET / block_size) + 1; 
+  // Return the block from that block.
+  return (struct ext2_group_desc*)get_block(fs, block); 
 }
 
 
