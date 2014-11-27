@@ -113,8 +113,34 @@ struct ext2_inode * get_root_dir(void * fs) {
 // name should be a single component: "foo.txt", not "/files/foo.txt".
 __u32 get_inode_from_dir(void * fs, struct ext2_inode * dir, 
         char * name) {
-    // FIXME: Uses reference implementation.
-    return _ref_get_inode_from_dir(fs, dir, name);
+  // Number of inodes per block group is written in the superblock
+  int num_inode = get_super_block(fs)->s_inodes_per_group;
+  // Entry pointer to the inode table.
+  struct ext2_dir_entry * entry = (struct ext2_dir_entry*)(get_block(fs, dir->i_block[0])); 
+
+  // counter variable used for iteration
+  int counter = 0;
+  while(counter < num_inode) {
+    // use the rec_len to go to next directory entry from the current entry
+    //entry = (struct ext2_dir_entry*)(((void*)entry) + (counter * (int)entry->rec_len));
+
+    // skip unused entries.
+    if (entry->inode == 0) {
+      continue;
+    }
+
+    // Check the name of the entry and the length of the name at the same time. 
+    if (strlen(name) == (unsigned char)(entry->name_len) && strncmp(name, entry->name, strlen(name)) == 0) {
+      // If equal, return the inode in the entry.
+      return entry->inode;
+    }
+    // Otherwise, move to the next entry.
+    entry = (struct ext2_dir_entry*)(((void*)entry) + entry->rec_len);
+    // Increment the counter.
+    counter++;
+  }
+  // couldn't find the inode. Return 0
+  return 0;
 }
 
 
