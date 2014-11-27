@@ -147,7 +147,29 @@ __u32 get_inode_from_dir(void * fs, struct ext2_inode * dir,
 // Find the inode number for a file by its full path.
 // This is the functionality that ext2cat ultimately needs.
 __u32 get_inode_by_path(void * fs, char * path) {
-    // FIXME: Uses reference implementation.
-    return _ref_get_inode_by_path(fs, path);
+  // Use the split path to split the path name into directories.
+  char ** paths = split_path(path);
+  // Initialize the inode number as the root inode first.
+  __u32 inode_num = EXT2_ROOT_INO;
+  // Iterate through all the sub paths of the full path. 
+  // Ex. For /code/python/ouroboros.py, iterate through /, /code, /code/python, /code/python/ouroboros.py
+  for (char ** path = paths; *path != NULL; path++) {
+    // Get the inode of the path
+    struct ext2_inode * inode = get_inode(fs, inode_num);
+    // If this is not a directory, then break.
+    if(!LINUX_S_ISDIR(inode->i_mode)) break;
+    // Get the inode num from the specified path.
+    inode_num = get_inode_from_dir(fs, inode, *path);
+    if(inode_num == 0) {
+      break;
+    } 
+  }
+  // If inode_num doesn't change, this means that there was no inode found.
+  if (inode_num == EXT2_ROOT_INO) {
+  // So return 0 here.
+    return 0;
+  } else {
+    return inode_num;
+  }
 }
 
