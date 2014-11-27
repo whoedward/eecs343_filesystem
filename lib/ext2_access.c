@@ -25,8 +25,8 @@ struct ext2_super_block * get_super_block(void * fs) {
 
 // Return the block size for a filesystem.
 __u32 get_block_size(void * fs) {
-   // FIXME: Uses reference implementation.
-    return _ref_get_block_size(fs);
+  // FIXME: Uses reference implementation.
+  return 1024 << get_super_block(fs)->s_log_block_size;
 }
 
 
@@ -36,7 +36,6 @@ void * get_block(void * fs, __u32 block_num) {
   // FIXME: Uses reference implementation.
   // offsets by the block size times the block_num. 
   return fs + (block_num * get_block_size(fs));
-  //return _ref_get_block(fs, block_num);
 }
 
 
