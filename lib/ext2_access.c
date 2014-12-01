@@ -11,8 +11,6 @@
 // Definitions for ext2cat to compile against.
 #include "ext2_access.h"
 
-
-
 ///////////////////////////////////////////////////////////
 //  Accessors for the basic components of ext2.
 ///////////////////////////////////////////////////////////
@@ -50,7 +48,8 @@ struct ext2_group_desc * get_block_group(void * fs, __u32 block_group_num) {
   // We divide the superblock_offset by the block size to get the index of block group descriptor table. 
   int block = (SUPERBLOCK_OFFSET / block_size) + 1; 
   // Return the block from that block.
-  return (struct ext2_group_desc*)get_block(fs, block); 
+  //return (struct ext2_group_desc*)get_block(fs, block); 
+  return fs + SUPERBLOCK_OFFSET + SUPERBLOCK_SIZE;
 }
 
 
