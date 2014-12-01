@@ -42,13 +42,8 @@ void * get_block(void * fs, __u32 block_num) {
 // ext2 filesystems will have several of these, but, for simplicity, we will
 // assume there is only one.
 struct ext2_group_desc * get_block_group(void * fs, __u32 block_group_num) {
-  // first we need the block size.
-  int block_size = get_block_size(fs);
-  // we then need the block number of the block group descriptor, which is located in the superblock.
-  // We divide the superblock_offset by the block size to get the index of block group descriptor table. 
-  int block = (SUPERBLOCK_OFFSET / block_size) + 1; 
-  // Return the block from that block.
-  //return (struct ext2_group_desc*)get_block(fs, block); 
+  // block group descriptor always comes after the superblock.
+  // Return the address by adding the superblock size to the pointer to head of the superblock. 
   return fs + SUPERBLOCK_OFFSET + SUPERBLOCK_SIZE;
 }
 
