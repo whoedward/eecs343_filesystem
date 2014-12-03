@@ -41,8 +41,13 @@ int main(int argc, char ** argv) {
         bytes_read += bytes_to_read;
     }
 
+   // pointer to block is in the inode 
+   // Retrieve this block
     __u32 * indirect_block = (__u32*)get_block(fs, target_ino->i_block[EXT2_IND_BLOCK]);
-    for (__u32 i = 0; i < (block_size / sizeof(int)); i++) {
+   // Basically do the same thing here but use the indirect block instead of the initial inode
+   // The exit condition differs a bit, since each entry in the block is a pointer. 
+   // Instead of looping through the block size, just loop over how many pointers can be there in a block.
+    for (__u32 i = 0; i < (block_size / sizeof(void*)); i++) {
         bytes_left = size - bytes_read;
         if (bytes_left == 0) break;
         __u32 bytes_to_read = bytes_left > block_size ? block_size : bytes_left;
