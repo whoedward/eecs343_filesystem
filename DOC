@@ -1,0 +1,25 @@
+#############################################
+############# Evaluation Report #############
+##### Nevil George ##### James Whang ########
+###### Lab 4: Filesystems ###################
+#############################################
+
+Here are the functions we implemented for this lab followed by a short description of what they do:
+
+get_super_block(void* fs): return a pointer to the primary super block of a file system.
+
+get_block_size(void* fs): return the block size of a filesystem from its super block.
+
+get_block(void* fs, __u32 block_num): return a pointer to a block, given its number. Simply offset the fs pointer by the block size multiplied by the block number.
+
+get_block_group(void* fs, __u32 block_group_num): Return a pointer to the first block group descriptor in a filesystem.
+
+get_inode(void* fs, __u32 inode_num): return a pointer to an inode given its number.
+
+get_root_dir(void* fs): get the inode of the root directory.
+
+get_inode_from_dir(void* fs, struct ext2_inode* dir, char* name): given the inode for a directory and a filename, return the inode number of that file inside that directory, or 0 if the file doesn't exist in that directory. 
+
+get_inode_by_path(void* fs, char* path): find the inode number for a file by its full path.
+
+
