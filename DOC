@@ -4,22 +4,58 @@
 ###### Lab 4: Filesystems ###################
 #############################################
 
-Here are the functions we implemented for this lab followed by a short description of what they do:
+EXTRA CREDIT QUESTION WAS IMPLEMENTED.
 
-get_super_block(void* fs): return a pointer to the primary super block of a file system.
+Result of running MD5 checksum returned the same values between the reference code and the implemented code. 
 
-get_block_size(void* fs): return the block size of a filesystem from its super block.
+************ MD5 Checksum values for each of the files in eecs343.img **********
+/code/ext2_headers/ext2_types.h			730cc429e8d0ab183380ab14f51f2912
+/code/haskell/qsort.hs				a7b79363f8645e4722a5d3d114311709
+/code/python/auroboros.py			ecd524e78b381b63df3d4bfcf662ce0d
+/photos/cows.jpg				3f19778ecb384018ea53869313023d8b
+/photos/corn.jpg				dc049b1372bf3a6a1aea17be9eca5532
+/photos/loons.jpg				eb5826a89dc453409ca76560979699bb
+/README.txt					c092359845cf0c2859ea9a532b7764ca
+********************************************************************************
 
-get_block(void* fs, __u32 block_num): return a pointer to a block, given its number. Simply offset the fs pointer by the block size multiplied by the block number.
+Here are the functions we implemented for this lab followed by a short description of what they do and our approach in implementing them.
 
-get_block_group(void* fs, __u32 block_group_num): Return a pointer to the first block group descriptor in a filesystem.
+************************  get_super_block(void* fs)  ***********************************
+This returns a pointer to the primary super block of a file system.
+We offset the value of parameter fs by the super block offset value which is predefined.
 
-get_inode(void* fs, __u32 inode_num): return a pointer to an inode given its number.
+************************ get_block_size(void* fs) ************************************
+This returns the block size of a filesystem from its super block.
+It uses the predefined function EXT2_BLOCKSIZE() on the superblock of the filesystem.
 
-get_root_dir(void* fs): get the inode of the root directory.
+************************** get_block(void* fs, __u32 block_num) ***********************
+Returns a pointer to a block, given its number. 
+We simply offset the fs pointer by the block size multiplied by the block number.
 
-get_inode_from_dir(void* fs, struct ext2_inode* dir, char* name): given the inode for a directory and a filename, return the inode number of that file inside that directory, or 0 if the file doesn't exist in that directory. 
+***************** get_block_group(void* fs, __u32 block_group_num) ********************
+Return a pointer to the first block group descriptor in a filesystem.
+The first block group descriptor follows right after the superblock. 
+We offset the fs pointer by the size of superblock and the superblock offset.
 
-get_inode_by_path(void* fs, char* path): find the inode number for a file by its full path.
+************************* get_inode(void* fs, __u32 inode_num) ************************
+Return a pointer to an inode given its number.
+We retrieve the inode table from the block group descriptor using the function get_block_group.
+Then from the inode table, we offset the address by the size of inode_num and then subtract 1, because inodes start from 1 and not 0.
 
+************ get_inode_from_dir(void* fs, struct ext2_inode* dir, char* name) **********
+Given the inode for a directory and a filename, return the inode number of that file inside that directory, or 0 if the file doesn't exist in that directory. 
+We first get the number of inodes in a group which is included in the superblock.
+Then we get the entry to the inode table using the dir argument, and then loop over the inodes in the inode table. We check for the directory name. 
+If we find the right directory, then we return the inode for that directory.
 
+************************ get_inode_by_path(void* fs, char* path) ***********************
+Find the inode number for a file by its full path.
+We first split the path into different sections, and starting from the leftmost directory (the root directory), we use the get_inode_from_dir function on each of the paths and update every single time we loop over. Then we return the inode number of the rightmost one. (the specified directory).
+
+************************************ EXTRA CREDIT ****************************************
+We were able to successfully implement the extra credit part of this lab. 
+We first retrieved the indirect block of the filesystem using the information in the target inode. 
+Then, we basically reran the same thing as direct block but on each of the entries on the indirect block as pointers instead of directly on the entries itself. 
+The code for this looks exactly the same except that the get_block runs on the indirect block instead of the i_block pointer in the target inode. 
+Also, for loop runs until there are no more pointer entries in the indirect block. 
+We simply then added all the bytes that were read into the bytes_read buffer, which were later printed off. 
